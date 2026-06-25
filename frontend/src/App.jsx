@@ -9,8 +9,15 @@ export default function App() {
       {/* SaaS Navigation */}
       <nav className="landing-navbar">
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 600, fontSize: '1.1rem' }}>
-          <svg viewBox="0 0 24 24" style={{ width: '22px', height: '22px', fill: 'var(--primary)' }}>
-            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          <svg viewBox="0 0 24 24" style={{ width: '24px', height: '24px' }}>
+            <defs>
+              <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="var(--primary)" />
+                <stop offset="100%" stopColor="#a78bfa" />
+              </linearGradient>
+            </defs>
+            <rect x="5.5" y="5.5" width="13" height="13" rx="3" transform="rotate(45 12 12)" fill="url(#logo-grad)" />
+            <path d="M9.5 12l1.5 1.5 3.5-3.5" stroke="var(--bg-main)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
           </svg>
           <span style={{ fontFamily: 'var(--font-serif)', fontWeight: 700, fontSize: '1.25rem' }}>PriorityFlow</span>
         </div>
@@ -89,7 +96,7 @@ export default function App() {
 
           {/* Mockup Main Panel */}
           <div className="mockup-main" style={{ padding: '0 0 20px 0' }}>
-            <div style={{ height: '90px', width: '100%', background: 'linear-gradient(to right, #4338ca, #be185d)', borderBottom: '1px solid var(--border)' }}></div>
+            <div style={{ height: '90px', width: '100%', background: 'linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #06b6d4 100%)', borderBottom: '1px solid var(--border)' }}></div>
             
             <div style={{ padding: '0 24px' }}>
               {/* Emoji header float */}
