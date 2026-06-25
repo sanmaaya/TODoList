@@ -1,26 +1,74 @@
 [
   {
     "id": "1",
-    "title": "Welcome to PriorityFlow!",
-    "description": "This is a preloaded todo item to help you get started. You can view its details, update its fields, or complete it.",
+    "title": "Welcome to PriorityFlow! 📝",
+    "description": "This is your Notion-style task workspace. Every line in this database is a physical page that you can click to open. You can edit database properties (Status, Priority, Due Date, Category, Tags) and type rich notes in the page body below.",
     "priority": "Medium",
     "category": "General",
-    "dueDate": "2026-07-01",
+    "dueDate": "2026-07-05",
     "completed": false,
-    "tags": ["guide", "welcome"],
+    "tags": ["guide", "welcome", "workspace"],
     "createdAt": "2026-06-25T12:00:00.000Z",
     "updatedAt": "2026-06-25T12:00:00.000Z"
   },
   {
     "id": "2",
-    "title": "Design user interface specs",
-    "description": "Create high fidelity wireframes and CSS templates using deep dark UX principles, featuring CSS glassmorphism, harmony color palettes, and responsive grids.",
+    "title": "Implement light & dark mode toggles ☀️🌙",
+    "description": "Added persistent theme switching support using React hooks and localStorage. Variables adapt to Notion's light theme variables (white background, soft beige sidebars, pastel tag colors) and default dark mode variables.",
     "priority": "High",
     "category": "Design",
     "dueDate": "2026-06-30",
     "completed": true,
-    "tags": ["ux", "css", "layout"],
+    "tags": ["css", "theme", "notion"],
     "createdAt": "2026-06-25T12:00:00.000Z",
     "updatedAt": "2026-06-25T12:00:00.000Z"
+  },
+  {
+    "id": "3",
+    "title": "Design project architecture specifications 💼",
+    "description": "Write detailed REST API endpoints documentation, database schemas, and folder structures. The notes section supports block-based text alignment.",
+    "priority": "High",
+    "category": "Work",
+    "dueDate": "2026-07-02",
+    "completed": false,
+    "tags": ["spec", "docs", "backend"],
+    "createdAt": "2026-06-25T13:45:00.000Z",
+    "updatedAt": "2026-06-25T13:45:00.000Z"
+  },
+  {
+    "id": "4",
+    "title": "Morning cardio & strength workout ❤️",
+    "description": "Daily physical routine: 30 minutes jogging, dumbbell circuits, core strength exercises, and post-workout stretching.",
+    "priority": "Low",
+    "category": "Health",
+    "dueDate": "2026-06-26",
+    "completed": false,
+    "tags": ["gym", "daily", "routine"],
+    "createdAt": "2026-06-25T14:10:00.000Z",
+    "updatedAt": "2026-06-25T14:10:00.000Z"
+  },
+  {
+    "id": "5",
+    "title": "Restock grocery lists & meal prep 🛒",
+    "description": "Buy fresh ingredients: spinach, avocados, chicken breast, brown rice, olive oil, and oats. Meal prep containers for the upcoming work week.",
+    "priority": "Medium",
+    "category": "Shopping",
+    "dueDate": "2026-06-27",
+    "completed": false,
+    "tags": ["weekend", "prep", "food"],
+    "createdAt": "2026-06-25T14:30:00.000Z",
+    "updatedAt": "2026-06-25T14:30:00.000Z"
+  },
+  {
+    "id": "6",
+    "title": "Setup Express backend CRUD router tests 🧪",
+    "description": "Write unit verification checks for all database endpoints (GET list, POST insert, PUT modification, DELETE row) to verify correct JSON file reads/writes.",
+    "priority": "Medium",
+    "category": "Work",
+    "dueDate": "2026-07-06",
+    "completed": true,
+    "tags": ["testing", "mocha", "node"],
+    "createdAt": "2026-06-25T15:00:00.000Z",
+    "updatedAt": "2026-06-25T15:00:00.000Z"
   }
 ]
