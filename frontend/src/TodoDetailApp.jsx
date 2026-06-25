@@ -1,32 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 export default function TodoDetailApp() {
   const [todo, setTodo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
 
-  // Edit form state
+  // Notion document properties states
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('Medium');
   const [category, setCategory] = useState('General');
   const [dueDate, setDueDate] = useState('');
+  const [completed, setCompleted] = useState(false);
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
 
-  // Get Todo ID from URL query parameters
+  // Status message for auto-saving
+  const [saveStatus, setSaveStatus] = useState('Saved'); // 'Saved', 'Saving...', 'Error'
+  const autoSaveTimerRef = useRef(null);
+
+  // Parse Todo ID from query
   const getTodoId = () => {
     const params = new URLSearchParams(window.location.search);
     return params.get('id');
   };
-
   const todoId = getTodoId();
 
-  // Fetch Todo item details
+  // Fetch task properties
   const fetchTodo = async () => {
     if (!todoId) {
-      setError('Task ID parameter is missing. Please select a todo from the dashboard.');
+      setError('Task ID parameter is missing. Navigate to the dashboard to select a task.');
       setLoading(false);
       return;
     }
@@ -34,22 +37,22 @@ export default function TodoDetailApp() {
     try {
       setLoading(true);
       const response = await fetch(`/api/todos/${todoId}`);
-      
       if (response.status === 404) {
-        throw new Error('Todo item not found in database');
+        throw new Error('This page does not exist in the database.');
       } else if (!response.ok) {
-        throw new Error('Failed to retrieve task details');
+        throw new Error('Failed to retrieve workspace properties.');
       }
 
       const data = await response.json();
       setTodo(data);
       
-      // Initialize edit fields
+      // Seed fields
       setTitle(data.title);
       setDescription(data.description || '');
       setPriority(data.priority);
       setCategory(data.category);
       setDueDate(data.dueDate || '');
+      setCompleted(data.completed);
       setTags(data.tags || []);
       setError(null);
     } catch (err) {
@@ -64,60 +67,105 @@ export default function TodoDetailApp() {
     fetchTodo();
   }, [todoId]);
 
-  // Handle Quick Complete Toggle
-  const handleToggleComplete = async () => {
+  // Trigger Save Updates to Backend
+  const saveUpdates = async (updatedFields = {}) => {
+    if (!todoId) return;
+    setSaveStatus('Saving...');
+    
+    // Combine current state with any immediate field overrides passed
+    const requestBody = {
+      title: updatedFields.title !== undefined ? updatedFields.title : title,
+      description: updatedFields.description !== undefined ? updatedFields.description : description,
+      priority: updatedFields.priority !== undefined ? updatedFields.priority : priority,
+      category: updatedFields.category !== undefined ? updatedFields.category : category,
+      dueDate: (updatedFields.dueDate !== undefined ? updatedFields.dueDate : dueDate) || null,
+      completed: updatedFields.completed !== undefined ? updatedFields.completed : completed,
+      tags: updatedFields.tags !== undefined ? updatedFields.tags : tags
+    };
+
+    if (requestBody.title.trim() === '') {
+      setSaveStatus('Error');
+      return;
+    }
+
     try {
-      const response = await fetch(`/api/todos/${todo.id}`, {
+      const response = await fetch(`/api/todos/${todoId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ completed: !todo.completed })
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
-        throw new Error('Failed to toggle completion status');
+        throw new Error('Failed to sync changes');
       }
 
-      const updated = await response.json();
-      setTodo(updated);
+      const data = await response.json();
+      setTodo(data);
+      setSaveStatus('Saved');
     } catch (err) {
-      alert('Error: ' + err.message);
+      console.error(err);
+      setSaveStatus('Error');
     }
   };
 
-  // Save changes from Edit Form
-  const handleSave = async (e) => {
-    e.preventDefault();
-    if (!title.trim()) return;
+  // Debounced auto-save handler for textareas/inputs
+  const triggerAutoSaveDebounced = (fieldsUpdate) => {
+    setSaveStatus('Saving...');
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
 
-    try {
-      const response = await fetch(`/api/todos/${todo.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          description,
-          priority,
-          category,
-          dueDate: dueDate || null,
-          tags
-        })
-      });
+    autoSaveTimerRef.current = setTimeout(() => {
+      saveUpdates(fieldsUpdate);
+    }, 800); // 800ms debounce
+  };
 
-      if (!response.ok) {
-        throw new Error('Failed to update task details');
-      }
-
-      const updated = await response.json();
-      setTodo(updated);
-      setIsEditing(false);
-    } catch (err) {
-      alert('Error updating task: ' + err.message);
+  // Immediate save on select dropdown/checkbox toggles
+  const handlePropertyChange = (fieldName, value) => {
+    if (fieldName === 'title') {
+      setTitle(value);
+      triggerAutoSaveDebounced({ title: value });
+    } else if (fieldName === 'description') {
+      setDescription(value);
+      triggerAutoSaveDebounced({ description: value });
+    } else if (fieldName === 'priority') {
+      setPriority(value);
+      saveUpdates({ priority: value });
+    } else if (fieldName === 'category') {
+      setCategory(value);
+      triggerAutoSaveDebounced({ category: value });
+    } else if (fieldName === 'dueDate') {
+      setDueDate(value);
+      saveUpdates({ dueDate: value });
+    } else if (fieldName === 'completed') {
+      setCompleted(value);
+      saveUpdates({ completed: value });
     }
   };
 
-  // Delete Todo
+  // Tag list helpers
+  const handleAddTag = (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const val = tagInput.trim().toLowerCase();
+      if (val && !tags.includes(val)) {
+        const nextTags = [...tags, val];
+        setTags(nextTags);
+        saveUpdates({ tags: nextTags });
+      }
+      setTagInput('');
+    }
+  };
+
+  const handleRemoveTag = (idx) => {
+    const nextTags = tags.filter((_, i) => i !== idx);
+    setTags(nextTags);
+    saveUpdates({ tags: nextTags });
+  };
+
+  // Row Deletion
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to permanently delete this task?')) return;
+    if (!window.confirm('Delete this database page permanently?')) return;
 
     try {
       const response = await fetch(`/api/todos/${todo.id}`, {
@@ -125,263 +173,189 @@ export default function TodoDetailApp() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete task');
+        throw new Error('Failed to delete');
       }
 
-      // Navigate back to list dashboard
-      window.location.href = '/';
+      window.location.href = '/dashboard.html';
     } catch (err) {
-      alert('Error deleting task: ' + err.message);
+      alert('Error: ' + err.message);
     }
-  };
-
-  // Tag helper controls
-  const handleAddTag = (e) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
-      const val = tagInput.trim().toLowerCase();
-      if (val && !tags.includes(val)) {
-        setTags([...tags, val]);
-      }
-      setTagInput('');
-    }
-  };
-
-  const handleRemoveTag = (indexToRemove) => {
-    setTags(tags.filter((_, index) => index !== indexToRemove));
-  };
-
-  const categoriesList = ['Personal', 'Work', 'Shopping', 'Health', 'General', 'Design'];
-
-  // Formatting dates helper
-  const formatDate = (isoString) => {
-    if (!isoString) return 'N/A';
-    return new Date(isoString).toLocaleString(undefined, {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
   };
 
   return (
-    <div className="app-container">
-      {/* Navigation bar */}
-      <a href="/" className="back-link">
-        <svg viewBox="0 0 24 24" style={{width: '20px', height: '20px', fill: 'currentColor'}}>
-          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-        </svg>
-        Back to Dashboard
-      </a>
-
-      {/* Main Container */}
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-muted)' }}>
-          Retrieving task details...
+    <div className="workspace-wrapper" style={{ minHeight: '100vh', flexDirection: 'column' }}>
+      {/* Cover Image banner */}
+      <div className="workspace-cover cover-accent-1">
+        {/* Save indicator float */}
+        <div style={{ position: 'absolute', top: '15px', right: '20px', background: 'rgba(0,0,0,0.4)', padding: '4px 10px', borderRadius: '4px', fontSize: '0.8rem', color: '#ccc', border: '1px solid rgba(255,255,255,0.08)' }}>
+          {saveStatus === 'Saving...' && '🌀 Saving changes...'}
+          {saveStatus === 'Saved' && '☁️ Saved to database'}
+          {saveStatus === 'Error' && '⚠️ Save failed'}
         </div>
-      ) : error ? (
-        <div className="glass-card error-card animate-fade-in">
-          <svg viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+      </div>
+
+      <div className="workspace-canvas" style={{ maxWidth: '780px', padding: '0 30px 60px 30px' }}>
+        
+        {/* Back Link */}
+        <a href="/dashboard.html" className="back-link" style={{ marginTop: '20px' }}>
+          <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px', fill: 'currentColor' }}>
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
           </svg>
-          <h2>Task Error</h2>
-          <p>{error}</p>
-          <a href="/" className="btn btn-primary">Return to Dashboard</a>
-        </div>
-      ) : isEditing ? (
-        /* Edit Mode Form View */
-        <div className="glass-card edit-form-card animate-fade-in">
-          <h2 style={{ marginBottom: '30px', fontSize: '1.6rem' }}>Edit Task</h2>
-          <form onSubmit={handleSave}>
-            <div className="form-group">
-              <label htmlFor="title">Title</label>
-              <input
-                id="title"
-                type="text"
-                className="input-control"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
+          Back to Workspace
+        </a>
+
+        {loading ? (
+          <div style={{ color: 'var(--text-secondary)', padding: '40px 0' }}>Loading page block...</div>
+        ) : error ? (
+          <div className="glass-card error-card animate-fade-in" style={{ marginTop: '30px', background: 'transparent', borderColor: 'var(--border)' }}>
+            <svg viewBox="0 0 24 24" style={{ fill: '#ff7369' }}>
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+            </svg>
+            <h2>Page Block Missing</h2>
+            <p>{error}</p>
+            <a href="/dashboard.html" className="btn btn-secondary">Return to Workspace</a>
+          </div>
+        ) : (
+          <div>
+            {/* Float page Emoji */}
+            <div className="workspace-icon-wrapper">
+              <span className="workspace-emoji">📄</span>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="description">Description</label>
-              <textarea
-                id="description"
-                className="input-control"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
+            {/* Editable Title */}
+            <input
+              className="workspace-title-input"
+              value={title}
+              onChange={(e) => handlePropertyChange('title', e.target.value)}
+              placeholder="Untitled Document"
+            />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-              <div className="form-group">
-                <label htmlFor="priority">Priority</label>
-                <select
-                  id="priority"
-                  className="input-control"
-                  value={priority}
-                  onChange={(e) => setPriority(e.target.value)}
-                >
-                  <option value="Low">Low</option>
-                  <option value="Medium">Medium</option>
-                  <option value="High">High</option>
-                </select>
+            {/* Notion Database Properties Table */}
+            <div className="notion-properties-table">
+              {/* Completed Status Property */}
+              <div className="properties-table-row">
+                <div className="property-label-cell">
+                  <span>✅</span> Completed
+                </div>
+                <div className="property-value-cell">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div
+                      className={`notion-check-box ${completed ? 'checked' : ''}`}
+                      onClick={() => handlePropertyChange('completed', !completed)}
+                    >
+                      <svg viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                      </svg>
+                    </div>
+                    <span style={{ fontSize: '0.9rem', color: completed ? 'var(--text-main)' : 'var(--text-secondary)' }}>
+                      {completed ? 'Archived / Done' : 'Active / Pending'}
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="category">Category</label>
-                <select
-                  id="category"
-                  className="input-control"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                >
-                  {categoriesList.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
+              {/* Priority Select Property */}
+              <div className="properties-table-row">
+                <div className="property-label-cell">
+                  <span>🔺</span> Priority
+                </div>
+                <div className="property-value-cell">
+                  <select
+                    className="property-select-input"
+                    value={priority}
+                    onChange={(e) => handlePropertyChange('priority', e.target.value)}
+                  >
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                  </select>
+                </div>
               </div>
-            </div>
 
-            <div className="form-group">
-              <label htmlFor="dueDate">Due Date</label>
-              <input
-                id="dueDate"
-                type="date"
-                className="input-control"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="tags">Tags (Press Enter/Comma to add)</label>
-              <div className="tags-input-container">
-                {tags.map((tag, idx) => (
-                  <span key={idx} className="tag-pill">
-                    {tag}
-                    <button type="button" onClick={() => handleRemoveTag(idx)}>&times;</button>
-                  </span>
-                ))}
-                <input
-                  id="tags"
-                  type="text"
-                  placeholder={tags.length === 0 ? "Add tags..." : ""}
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={handleAddTag}
-                />
+              {/* Category Property */}
+              <div className="properties-table-row">
+                <div className="property-label-cell">
+                  <span>👤</span> Category
+                </div>
+                <div className="property-value-cell">
+                  <input
+                    type="text"
+                    className="property-text-input"
+                    placeholder="e.g. Work, Personal"
+                    value={category}
+                    onChange={(e) => handlePropertyChange('category', e.target.value)}
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="edit-actions-footer">
-              <button type="button" className="btn btn-secondary" onClick={() => setIsEditing(false)}>
-                Cancel
-              </button>
-              <button type="submit" className="btn btn-primary">
-                Save Changes
-              </button>
-            </div>
-          </form>
-        </div>
-      ) : (
-        /* Details View */
-        <div className="glass-card animate-fade-in">
-          {/* Header Row */}
-          <div className="detail-header-row">
-            <div>
-              <h2 className="detail-title">{todo.title}</h2>
-              <div className="detail-meta-list">
-                <span className={`badge ${todo.completed ? 'badge-priority-Low' : 'badge-priority-High'}`} style={{ backgroundColor: todo.completed ? 'var(--success-glow)' : 'var(--danger-glow)', color: todo.completed ? 'var(--success)' : 'var(--danger)', borderColor: todo.completed ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)' }}>
-                  {todo.completed ? 'Completed' : 'Pending'}
-                </span>
-                
-                <span className={`badge badge-priority-${todo.priority}`}>
-                  {todo.priority} Priority
-                </span>
+              {/* Due Date Property */}
+              <div className="properties-table-row">
+                <div className="property-label-cell">
+                  <span>📅</span> Due Date
+                </div>
+                <div className="property-value-cell">
+                  <input
+                    type="date"
+                    className="property-text-input"
+                    value={dueDate}
+                    onChange={(e) => handlePropertyChange('dueDate', e.target.value)}
+                  />
+                </div>
+              </div>
 
-                <span className="badge badge-category">
-                  {todo.category}
-                </span>
-
-                {todo.tags && todo.tags.length > 0 && (
-                  <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-                    {todo.tags.map((tag, idx) => (
-                      <span key={idx} style={{fontSize: '0.75rem', color: 'var(--primary)', background: 'var(--primary-glow)', padding: '2px 8px', borderRadius: '50px'}}>
+              {/* Tags Multi-select Property */}
+              <div className="properties-table-row">
+                <div className="property-label-cell">
+                  <span>🏷️</span> Tags
+                </div>
+                <div className="property-value-cell">
+                  <div className="tags-input-container" style={{ background: 'transparent', padding: '2px', border: 'none' }}>
+                    {tags.map((tag, idx) => (
+                      <span key={idx} className="tag-pill" style={{ background: 'rgba(82,156,202,0.15)', color: 'var(--primary)', borderColor: 'rgba(82,156,202,0.3)' }}>
                         #{tag}
+                        <button type="button" onClick={() => handleRemoveTag(idx)} style={{ color: 'var(--primary)' }}>&times;</button>
                       </span>
                     ))}
+                    <input
+                      type="text"
+                      placeholder={tags.length === 0 ? "＋ Add tag..." : ""}
+                      style={{ fontSize: '0.9rem', width: '120px', padding: '4px' }}
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={handleAddTag}
+                    />
                   </div>
-                )}
+                </div>
               </div>
             </div>
 
-            {/* Quick Toggle Done button in Header */}
-            <button
-              onClick={handleToggleComplete}
-              className={`btn ${todo.completed ? 'btn-secondary' : 'btn-primary'}`}
-              style={{ padding: '10px 20px', fontSize: '0.9rem' }}
-            >
-              {todo.completed ? 'Reopen Task' : 'Mark Completed'}
-            </button>
-          </div>
+            {/* Editor block divider */}
+            <div style={{ height: '1px', backgroundColor: 'var(--border)', width: '100%', margin: '20px 0' }}></div>
 
-          {/* Description Section */}
-          <div className="detail-description-section">
-            <h3 className="description-title">Description</h3>
-            {todo.description ? (
-              <p className="description-text">{todo.description}</p>
-            ) : (
-              <p className="description-text" style={{ fontStyle: 'italic', color: 'var(--text-muted)' }}>
-                No description provided for this task.
-              </p>
-            )}
-          </div>
+            {/* Notes/Page Description editor */}
+            <textarea
+              className="notion-editor-textarea"
+              placeholder="Press enter to start typing page details / notes block..."
+              value={description}
+              onChange={(e) => handlePropertyChange('description', e.target.value)}
+            />
 
-          {/* Timeline Metadata */}
-          <div className="detail-timeline" style={{ marginBottom: '35px' }}>
-            <div className="timeline-row">
-              <span>Due Date</span>
-              <span className="timeline-val">
-                {todo.dueDate ? (
-                  <span style={{ color: !todo.completed && new Date(todo.dueDate) < new Date(new Date().setHours(0,0,0,0)) ? 'var(--danger)' : 'inherit' }}>
-                    {new Date(todo.dueDate).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-                    {!todo.completed && new Date(todo.dueDate) < new Date(new Date().setHours(0,0,0,0)) ? ' (Overdue)' : ''}
-                  </span>
-                ) : 'No due date set'}
-              </span>
-            </div>
-            <div className="timeline-row">
-              <span>Date Created</span>
-              <span className="timeline-val">{formatDate(todo.createdAt)}</span>
-            </div>
-            <div className="timeline-row">
-              <span>Last Modified</span>
-              <span className="timeline-val">{formatDate(todo.updatedAt)}</span>
+            {/* Page Delete actions */}
+            <div style={{ marginTop: '40px', display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                className="btn btn-danger"
+                style={{ padding: '8px 16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                onClick={handleDelete}
+              >
+                <svg viewBox="0 0 24 24" style={{ width: '14px', height: '14px', fill: 'currentColor' }}>
+                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                </svg>
+                Delete Page
+              </button>
             </div>
           </div>
-
-          {/* Main action triggers */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '15px' }}>
-            <button className="btn btn-secondary" onClick={() => setIsEditing(true)}>
-              <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px', fill: 'currentColor' }}>
-                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-              </svg>
-              Edit Task Details
-            </button>
-
-            <button className="btn btn-danger" onClick={handleDelete}>
-              <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px', fill: 'currentColor' }}>
-                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-              </svg>
-              Delete Task
-            </button>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
