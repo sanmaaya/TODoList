@@ -4,32 +4,32 @@
 */
 
 :root {
-  /* Notion Theme Colors (Dark Mode) */
-  --bg-main: #191919;
-  --bg-sidebar: #202020;
-  --bg-hover: rgba(255, 255, 255, 0.055);
-  --bg-active: rgba(255, 255, 255, 0.085);
+  /* Obsidian/Midnight Palette (Dark Mode) */
+  --bg-main: #0c0d10; /* Deep obsidian black */
+  --bg-sidebar: #13151b; /* Sleek charcoal midnight */
+  --bg-hover: rgba(255, 255, 255, 0.045);
+  --bg-active: rgba(255, 255, 255, 0.075);
   
-  --border: rgba(255, 255, 255, 0.09);
-  --border-focus: rgba(255, 255, 255, 0.2);
+  --border: rgba(255, 255, 255, 0.06);
+  --border-focus: rgba(129, 140, 248, 0.45); /* Glowing indigo-blue */
   
-  --text-main: #e3e3e3;
-  --text-secondary: #9f9f9f;
-  --text-muted: #5a5a5a;
+  --text-main: #e2e8f0; /* slate-200 */
+  --text-secondary: #94a3b8; /* slate-400 */
+  --text-muted: #475569; /* slate-600 */
   
   /* Brand/Highlight Accents */
-  --primary: #529cca; /* Soft blue */
-  --primary-hover: #3f86b3;
-  --success: #2b593f; /* Soft green */
-  --success-text: #76f2ae;
-  --warning: #89560a; /* Soft amber */
-  --warning-text: #ffcc4d;
-  --danger: #6e3630; /* Soft red */
-  --danger-text: #ff7369;
+  --primary: #818cf8; /* Pastel Indigo */
+  --primary-hover: #6366f1;
+  --success: #064e3b; /* Deep green */
+  --success-text: #34d399; /* Emerald */
+  --warning: #78350f; /* Deep amber */
+  --warning-text: #fbbf24; /* Amber */
+  --danger: #7f1d1d; /* Deep red */
+  --danger-text: #f87171; /* Coral */
   
   /* Font Stacks */
-  --font-serif: 'Playfair Display', Georgia, serif;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: 'Lora', Georgia, serif;
+  --font-sans: 'Outfit', sans-serif;
   
   /* Shared dimensions */
   --sidebar-width: 250px;
@@ -42,27 +42,28 @@
 }
 
 html[data-theme='light'] {
-  --bg-main: #ffffff;
-  --bg-sidebar: #f7f7f5;
-  --bg-hover: rgba(55, 53, 47, 0.04);
-  --bg-active: rgba(55, 53, 47, 0.08);
+  /* Alabaster/Warm-Sand Palette (Light Mode) */
+  --bg-main: #fafaf9; /* Warm stone sand */
+  --bg-sidebar: #f4f4f3; /* Darker warm sidebar */
+  --bg-hover: rgba(68, 64, 60, 0.045);
+  --bg-active: rgba(68, 64, 60, 0.075);
   
-  --border: rgba(55, 53, 47, 0.09);
-  --border-focus: rgba(55, 53, 47, 0.2);
+  --border: rgba(68, 64, 60, 0.08);
+  --border-focus: rgba(99, 102, 241, 0.4);
   
-  --text-main: #37352f;
-  --text-secondary: #7c7b77;
-  --text-muted: #acaba9;
+  --text-main: #292524; /* stone-800 */
+  --text-secondary: #57534e; /* stone-600 */
+  --text-muted: #a8a29e; /* stone-400 */
 
   /* Accent overrides for soft Notion light mode tag styles */
-  --primary: #2eaadc;
-  --primary-hover: #1e8ab7;
-  --success: rgba(43, 89, 63, 0.09);
-  --success-text: #2b593f;
-  --warning: rgba(137, 86, 10, 0.09);
-  --warning-text: #89560a;
-  --danger: rgba(110, 54, 48, 0.09);
-  --danger-text: #6e3630;
+  --primary: #4f46e5;
+  --primary-hover: #3730a3;
+  --success: rgba(52, 211, 153, 0.15);
+  --success-text: #065f46;
+  --warning: rgba(251, 191, 36, 0.18);
+  --warning-text: #92400e;
+  --danger: rgba(248, 113, 113, 0.15);
+  --danger-text: #991b1b;
 }
 
 /* Global resets & typography */
