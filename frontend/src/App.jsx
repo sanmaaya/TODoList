@@ -362,7 +362,7 @@ export default function App() {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <label style={{ fontSize: '0.8rem', color: var(--text-muted), fontWeight: 600 }}>SORT BY</label>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>SORT BY</label>
               <select
                 className="input-control dropdown-select"
                 style={{ minWidth: '140px' }}
