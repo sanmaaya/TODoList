@@ -1,6 +1,9 @@
 import React from 'react';
+import { useTheme } from './theme.js';
 
 export default function App() {
+  const [theme, toggleTheme] = useTheme();
+
   return (
     <div>
       {/* SaaS Navigation */}
@@ -14,6 +17,13 @@ export default function App() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
           <span style={{ color: 'var(--text-secondary)', cursor: 'pointer' }} onClick={() => window.location.href = '/dashboard.html'}>Product</span>
           <span style={{ color: 'var(--text-secondary)', cursor: 'pointer' }} onClick={() => window.location.href = '/dashboard.html'}>Templates</span>
+          <button 
+            onClick={toggleTheme} 
+            style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.9rem' }}
+            title="Toggle theme"
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
           <a href="/dashboard.html" className="landing-btn" style={{ padding: '6px 14px', fontSize: '0.85rem' }}>Get Started</a>
         </div>
       </nav>

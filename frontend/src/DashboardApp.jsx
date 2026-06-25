@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useTheme } from './theme.js';
 
 export default function DashboardApp() {
+  const [theme, toggleTheme] = useTheme();
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -144,11 +146,20 @@ export default function DashboardApp() {
             </svg>
             <span>PriorityFlow</span>
           </div>
-          <button className="sidebar-toggle-btn" onClick={() => setSidebarCollapsed(true)} title="Collapse sidebar">
-            <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px', fill: 'currentColor' }}>
-              <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-            </svg>
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <button 
+              className="sidebar-toggle-btn" 
+              onClick={toggleTheme} 
+              title="Toggle theme mode"
+            >
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
+            <button className="sidebar-toggle-btn" onClick={() => setSidebarCollapsed(true)} title="Collapse sidebar">
+              <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px', fill: 'currentColor' }}>
+                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div className="sidebar-menu">

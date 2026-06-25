@@ -41,6 +41,30 @@
   --transition-normal: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+html[data-theme='light'] {
+  --bg-main: #ffffff;
+  --bg-sidebar: #f7f7f5;
+  --bg-hover: rgba(55, 53, 47, 0.04);
+  --bg-active: rgba(55, 53, 47, 0.08);
+  
+  --border: rgba(55, 53, 47, 0.09);
+  --border-focus: rgba(55, 53, 47, 0.2);
+  
+  --text-main: #37352f;
+  --text-secondary: #7c7b77;
+  --text-muted: #acaba9;
+
+  /* Accent overrides for soft Notion light mode tag styles */
+  --primary: #2eaadc;
+  --primary-hover: #1e8ab7;
+  --success: rgba(43, 89, 63, 0.09);
+  --success-text: #2b593f;
+  --warning: rgba(137, 86, 10, 0.09);
+  --warning-text: #89560a;
+  --danger: rgba(110, 54, 48, 0.09);
+  --danger-text: #6e3630;
+}
+
 /* Global resets & typography */
 * {
   box-sizing: border-box;
