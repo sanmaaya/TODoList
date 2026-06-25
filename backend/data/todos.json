@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1",
+    "title": "Welcome to PriorityFlow!",
+    "description": "This is a preloaded todo item to help you get started. You can view its details, update its fields, or complete it.",
+    "priority": "Medium",
+    "category": "General",
+    "dueDate": "2026-07-01",
+    "completed": false,
+    "tags": ["guide", "welcome"],
+    "createdAt": "2026-06-25T12:00:00.000Z",
+    "updatedAt": "2026-06-25T12:00:00.000Z"
+  },
+  {
+    "id": "2",
+    "title": "Design user interface specs",
+    "description": "Create high fidelity wireframes and CSS templates using deep dark UX principles, featuring CSS glassmorphism, harmony color palettes, and responsive grids.",
+    "priority": "High",
+    "category": "Design",
+    "dueDate": "2026-06-30",
+    "completed": true,
+    "tags": ["ux", "css", "layout"],
+    "createdAt": "2026-06-25T12:00:00.000Z",
+    "updatedAt": "2026-06-25T12:00:00.000Z"
+  }
+]
