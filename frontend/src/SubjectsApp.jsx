@@ -222,7 +222,7 @@ export default function SubjectsApp() {
           <a href="/" className="menu-item">
             <div className="menu-item-left">
               <span className="menu-item-icon">🌐</span>
-              <span>Landing Page</span>
+              <span>Back to Home Page</span>
             </div>
           </a>
         </div>

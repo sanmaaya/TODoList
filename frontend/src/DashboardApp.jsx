@@ -284,7 +284,7 @@ export default function DashboardApp() {
           <a href="/" className="menu-item">
             <div className="menu-item-left">
               <span className="menu-item-icon">🌐</span>
-              <span>Landing Page</span>
+              <span>Back to Home Page</span>
             </div>
           </a>
         </div>
@@ -353,46 +353,156 @@ export default function DashboardApp() {
             </div>
 
             {/* Widget 3: Pomodoro & Stopwatch Toggles */}
-            <div style={{ border: '1px solid var(--border)', padding: '16px', borderRadius: 'var(--radius-lg)', background: 'var(--bg-sidebar)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '15px' }}>
+            <div style={{ 
+              border: '1px solid var(--border)', 
+              padding: '20px', 
+              borderRadius: 'var(--radius-lg)', 
+              background: 'var(--bg-sidebar)', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              justifyContent: 'space-between', 
+              gap: '20px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)'
+            }}>
               
               {/* Pomodoro Timer */}
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>⏰ Pomodoro ({pomoMode})</h3>
-                  <div style={{ display: 'flex', gap: '4px' }}>
-                    <button onClick={() => handlePomoModeChange('Work')} style={{ fontSize: '0.7rem', padding: '2px 5px', borderRadius: '2px', background: pomoMode === 'Work' ? 'var(--bg-active)' : 'transparent', color: pomoMode === 'Work' ? 'var(--text-main)' : 'var(--text-secondary)', cursor: 'pointer' }}>Work</button>
-                    <button onClick={() => handlePomoModeChange('Break')} style={{ fontSize: '0.7rem', padding: '2px 5px', borderRadius: '2px', background: pomoMode === 'Break' ? 'var(--bg-active)' : 'transparent', color: pomoMode === 'Break' ? 'var(--text-main)' : 'var(--text-secondary)', cursor: 'pointer' }}>Break</button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3 style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>⏰ Pomodoro ({pomoMode})</h3>
+                  <div style={{ display: 'flex', background: 'rgba(223, 177, 91, 0.04)', padding: '2px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+                    <button 
+                      onClick={() => handlePomoModeChange('Work')} 
+                      style={{ 
+                        fontSize: '0.72rem', 
+                        padding: '3px 8px', 
+                        borderRadius: '2px', 
+                        background: pomoMode === 'Work' ? 'var(--primary)' : 'transparent', 
+                        color: pomoMode === 'Work' ? '#000' : 'var(--text-secondary)', 
+                        fontWeight: pomoMode === 'Work' ? 600 : 500,
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all var(--transition-normal)'
+                      }}
+                    >
+                      Work
+                    </button>
+                    <button 
+                      onClick={() => handlePomoModeChange('Break')} 
+                      style={{ 
+                        fontSize: '0.72rem', 
+                        padding: '3px 8px', 
+                        borderRadius: '2px', 
+                        background: pomoMode === 'Break' ? 'var(--primary)' : 'transparent', 
+                        color: pomoMode === 'Break' ? '#000' : 'var(--text-secondary)', 
+                        fontWeight: pomoMode === 'Break' ? 600 : 500,
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all var(--transition-normal)'
+                      }}
+                    >
+                      Break
+                    </button>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '1.4rem', fontFamily: 'monospace', fontWeight: 'bold', color: 'var(--text-main)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
+                  <span style={{ 
+                    fontSize: '1.8rem', 
+                    fontFamily: 'monospace', 
+                    fontWeight: 700, 
+                    color: 'var(--primary)',
+                    letterSpacing: '0.05em',
+                    textShadow: '0 0 10px rgba(223, 177, 91, 0.2)'
+                  }}>
                     {pomoMinutes.toString().padStart(2, '0')}:{pomoSeconds.toString().padStart(2, '0')}
                   </span>
                   
-                  <button onClick={() => setPomoActive(!pomoActive)} style={{ fontSize: '0.78rem', background: 'var(--bg-active)', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer', color: 'var(--text-main)' }}>
-                    {pomoActive ? 'Pause' : 'Start'}
-                  </button>
-                  <button onClick={handlePomoReset} style={{ fontSize: '0.78rem', background: 'transparent', border: '1px solid var(--border)', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer', color: 'var(--text-secondary)' }}>
-                    Reset
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      onClick={() => setPomoActive(!pomoActive)} 
+                      style={{ 
+                        fontSize: '0.78rem', 
+                        background: 'var(--primary)', 
+                        color: '#000',
+                        fontWeight: 600,
+                        border: 'none',
+                        padding: '4px 12px', 
+                        borderRadius: 'var(--radius-sm)', 
+                        cursor: 'pointer',
+                        boxShadow: pomoActive ? 'none' : '0 2px 8px rgba(223, 177, 91, 0.25)',
+                        transition: 'all var(--transition-normal)'
+                      }}
+                    >
+                      {pomoActive ? 'Pause' : 'Start'}
+                    </button>
+                    <button 
+                      onClick={handlePomoReset} 
+                      style={{ 
+                        fontSize: '0.78rem', 
+                        background: 'transparent', 
+                        border: '1px solid var(--border)', 
+                        padding: '4px 10px', 
+                        borderRadius: 'var(--radius-sm)', 
+                        cursor: 'pointer', 
+                        color: 'var(--text-secondary)',
+                        transition: 'all var(--transition-normal)'
+                      }}
+                    >
+                      Reset
+                    </button>
+                  </div>
                 </div>
               </div>
 
               {/* Stopwatch Timer */}
-              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '10px' }}>
-                <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>⏱️ Lap Stopwatch</h3>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '1.3rem', fontFamily: 'monospace', fontWeight: 'bold', color: 'var(--text-main)' }}>
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <h3 style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>⏱️ Lap Stopwatch</h3>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ 
+                    fontSize: '1.7rem', 
+                    fontFamily: 'monospace', 
+                    fontWeight: 700, 
+                    color: 'var(--primary)',
+                    letterSpacing: '0.02em',
+                    textShadow: '0 0 10px rgba(223, 177, 91, 0.2)'
+                  }}>
                     {formatStopwatch(stopwatchTime)}
                   </span>
                   
-                  <button onClick={() => setStopwatchActive(!stopwatchActive)} style={{ fontSize: '0.78rem', background: 'var(--bg-active)', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer', color: 'var(--text-main)' }}>
-                    {stopwatchActive ? 'Stop' : 'Start'}
-                  </button>
-                  <button onClick={() => { setStopwatchActive(false); setStopwatchTime(0); }} style={{ fontSize: '0.78rem', background: 'transparent', border: '1px solid var(--border)', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer', color: 'var(--text-secondary)' }}>
-                    Reset
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      onClick={() => setStopwatchActive(!stopwatchActive)} 
+                      style={{ 
+                        fontSize: '0.78rem', 
+                        background: 'var(--primary)', 
+                        color: '#000',
+                        fontWeight: 600,
+                        border: 'none',
+                        padding: '4px 12px', 
+                        borderRadius: 'var(--radius-sm)', 
+                        cursor: 'pointer',
+                        boxShadow: stopwatchActive ? 'none' : '0 2px 8px rgba(223, 177, 91, 0.25)',
+                        transition: 'all var(--transition-normal)'
+                      }}
+                    >
+                      {stopwatchActive ? 'Stop' : 'Start'}
+                    </button>
+                    <button 
+                      onClick={() => { setStopwatchActive(false); setStopwatchTime(0); }} 
+                      style={{ 
+                        fontSize: '0.78rem', 
+                        background: 'transparent', 
+                        border: '1px solid var(--border)', 
+                        padding: '4px 10px', 
+                        borderRadius: 'var(--radius-sm)', 
+                        cursor: 'pointer', 
+                        color: 'var(--text-secondary)',
+                        transition: 'all var(--transition-normal)'
+                      }}
+                    >
+                      Reset
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
