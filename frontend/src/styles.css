@@ -687,10 +687,14 @@ html[data-theme='light'] .workspace-cover {
 
 .landing-hero h1 {
   font-family: var(--font-serif);
-  font-size: 4rem;
+  font-size: 4.5rem;
   font-weight: 700;
   line-height: 1.15;
   margin-bottom: 25px;
+  background: linear-gradient(135deg, var(--text-main) 30%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
 }
 
 @media (max-width: 768px) {
@@ -700,9 +704,9 @@ html[data-theme='light'] .workspace-cover {
 }
 
 .landing-hero p {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   color: var(--text-secondary);
-  max-width: 600px;
+  max-width: 650px;
   margin: 0 auto 40px auto;
   line-height: 1.6;
 }
@@ -711,19 +715,25 @@ html[data-theme='light'] .workspace-cover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 28px;
+  padding: 12px 32px;
   font-size: 1rem;
   font-weight: 600;
   border-radius: var(--radius-sm);
-  background-color: var(--text-main);
-  color: var(--bg-main) !important;
+  background-color: var(--primary); /* Gold button */
+  color: #050507 !important; /* Obsidian text */
   cursor: pointer;
-  transition: opacity var(--transition-normal);
+  transition: all var(--transition-normal);
   text-decoration: none !important;
+  border: 1px solid var(--primary);
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 15px rgba(223, 177, 91, 0.15);
 }
 
 .landing-btn:hover {
-  opacity: 0.9;
+  background-color: transparent;
+  color: var(--primary) !important;
+  box-shadow: 0 4px 20px rgba(223, 177, 91, 0.35);
+  transform: translateY(-2px);
 }
 
 .landing-mockup-wrapper {
@@ -737,15 +747,21 @@ html[data-theme='light'] .workspace-cover {
   background-color: var(--bg-sidebar);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 30px 70px rgba(223, 177, 91, 0.08), 0 10px 35px rgba(0, 0, 0, 0.45);
   overflow: hidden;
   height: 480px;
   display: flex;
+  transition: transform var(--transition-normal), border-color var(--transition-normal);
+}
+
+.landing-mockup:hover {
+  transform: scale(1.005) translateY(-3px);
+  border-color: var(--primary);
 }
 
 .mockup-sidebar {
   width: 180px;
-  background-color: #1a1a1a;
+  background-color: #0c0c0e;
   border-right: 1px solid var(--border);
   padding: 15px;
 }
@@ -798,19 +814,29 @@ html[data-theme='light'] .workspace-cover {
   border-radius: var(--radius-lg);
   background-color: var(--bg-sidebar);
   text-align: left;
+  transition: all var(--transition-normal);
+}
+
+.feature-box:hover {
+  border-color: var(--primary);
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(223, 177, 91, 0.06);
 }
 
 .feature-box-icon {
-  font-size: 1.8rem;
+  font-size: 2.2rem;
   margin-bottom: 15px;
+  filter: drop-shadow(0 2px 8px rgba(223, 177, 91, 0.2));
 }
 
 .feature-box h3 {
   font-size: 1.15rem;
   margin-bottom: 10px;
+  color: var(--text-main);
 }
 
 .feature-box p {
   color: var(--text-secondary);
   font-size: 0.9rem;
+  line-height: 1.5;
 }

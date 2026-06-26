@@ -37,13 +37,13 @@ export default function App() {
 
       {/* Hero Section */}
       <section className="landing-hero">
-        <h1 className="animate-fade-in">Write, plan, organize.<br />All in one workspace.</h1>
+        <h1 className="animate-fade-in">Synthesize Knowledge.<br />Master Academic Excellence.</h1>
         <p className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          PriorityFlow is a minimalist, multi-page task scheduling canvas. Styled like Notion, designed for developer focus. Toggle lists, define priorities, and write rich sub-task details.
+          PriorityFlow is an elite, multi-page workspace engineered for high-performance students. Crafted in an Obsidian & Champagne Gold styling system, it maps study trackers, notes databases, and exam roadmaps.
         </p>
         <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <a href="/dashboard.html" className="landing-btn">
-            Get PriorityFlow Free
+            Access Executive Workspace
             <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px', fill: 'currentColor', marginLeft: '8px' }}>
               <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
             </svg>
@@ -177,23 +177,23 @@ export default function App() {
       <section className="landing-features">
         <div className="feature-box">
           <div className="feature-box-icon">📂</div>
-          <h3>Multi-Page Native Layout</h3>
+          <h3>Multi-Page Native Architecture</h3>
           <p>
-            Separate HTML templates built with Vite. No complex SPA router bundle payloads, giving fast load times and clean browser history.
+            Fast, physical page transitions compile dynamically under Vite. Zero SPA bundle overhead for immediate page load and clean browser states.
           </p>
         </div>
         <div className="feature-box">
           <div className="feature-box-icon">🎨</div>
-          <h3>Minimalist Workspace</h3>
+          <h3>Obsidian & Gold Canvas</h3>
           <p>
-            Immersive dark neutral workspace structure copying Notion's sleek styling. Clean checkmarks, subtle dividers, and drag guides.
+            Immersive high-end study dashboard wrapped in luxury gold accents, customized Outfit/Lora typography, and persistent dark/light theme memory.
           </p>
         </div>
         <div className="feature-box">
           <div className="feature-box-icon">📝</div>
-          <h3>Document Detail Block</h3>
+          <h3>Integrated Relational Databases</h3>
           <p>
-            Every task acts as a single document. Maintain page status timeline, priority rankings, multi-select tag arrays, and rich details.
+            Track study logs, notes galleries, exams, and milestones linked across database models that auto-save changes instantly back to the database.
           </p>
         </div>
       </section>
