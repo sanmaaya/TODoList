@@ -361,14 +361,16 @@ export default function DashboardApp() {
               display: 'flex', 
               flexDirection: 'column', 
               justifyContent: 'space-between', 
-              gap: '20px',
+              gap: '24px',
               boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)'
             }}>
               
               {/* Pomodoro Timer */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>⏰ Pomodoro ({pomoMode})</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center', textAlign: 'center' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', width: '100%' }}>
+                  <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
+                    ⏰ Pomodoro ({pomoMode})
+                  </h3>
                   <div style={{ display: 'flex', background: 'rgba(223, 177, 91, 0.04)', padding: '2px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
                     <button 
                       onClick={() => handlePomoModeChange('Work')} 
@@ -405,9 +407,9 @@ export default function DashboardApp() {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', marginTop: '4px', width: '100%' }}>
                   <span style={{ 
-                    fontSize: '1.8rem', 
+                    fontSize: '2.2rem', 
                     fontFamily: 'monospace', 
                     fontWeight: 700, 
                     color: 'var(--primary)',
@@ -417,7 +419,7 @@ export default function DashboardApp() {
                     {pomoMinutes.toString().padStart(2, '0')}:{pomoSeconds.toString().padStart(2, '0')}
                   </span>
                   
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', width: '100%' }}>
                     <button 
                       onClick={() => setPomoActive(!pomoActive)} 
                       style={{ 
@@ -426,11 +428,13 @@ export default function DashboardApp() {
                         color: '#000',
                         fontWeight: 600,
                         border: 'none',
-                        padding: '4px 12px', 
+                        padding: '5px 16px', 
                         borderRadius: 'var(--radius-sm)', 
                         cursor: 'pointer',
                         boxShadow: pomoActive ? 'none' : '0 2px 8px rgba(223, 177, 91, 0.25)',
-                        transition: 'all var(--transition-normal)'
+                        transition: 'all var(--transition-normal)',
+                        flex: '1',
+                        maxWidth: '90px'
                       }}
                     >
                       {pomoActive ? 'Pause' : 'Start'}
@@ -441,11 +445,13 @@ export default function DashboardApp() {
                         fontSize: '0.78rem', 
                         background: 'transparent', 
                         border: '1px solid var(--border)', 
-                        padding: '4px 10px', 
+                        padding: '5px 16px', 
                         borderRadius: 'var(--radius-sm)', 
                         cursor: 'pointer', 
                         color: 'var(--text-secondary)',
-                        transition: 'all var(--transition-normal)'
+                        transition: 'all var(--transition-normal)',
+                        flex: '1',
+                        maxWidth: '90px'
                       }}
                     >
                       Reset
@@ -455,11 +461,11 @@ export default function DashboardApp() {
               </div>
 
               {/* Stopwatch Timer */}
-              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <h3 style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>⏱️ Lap Stopwatch</h3>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '18px', display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center', textAlign: 'center' }}>
+                <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>⏱️ Lap Stopwatch</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', width: '100%' }}>
                   <span style={{ 
-                    fontSize: '1.7rem', 
+                    fontSize: '2.2rem', 
                     fontFamily: 'monospace', 
                     fontWeight: 700, 
                     color: 'var(--primary)',
@@ -469,7 +475,7 @@ export default function DashboardApp() {
                     {formatStopwatch(stopwatchTime)}
                   </span>
                   
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', width: '100%' }}>
                     <button 
                       onClick={() => setStopwatchActive(!stopwatchActive)} 
                       style={{ 
@@ -478,11 +484,13 @@ export default function DashboardApp() {
                         color: '#000',
                         fontWeight: 600,
                         border: 'none',
-                        padding: '4px 12px', 
+                        padding: '5px 16px', 
                         borderRadius: 'var(--radius-sm)', 
                         cursor: 'pointer',
                         boxShadow: stopwatchActive ? 'none' : '0 2px 8px rgba(223, 177, 91, 0.25)',
-                        transition: 'all var(--transition-normal)'
+                        transition: 'all var(--transition-normal)',
+                        flex: '1',
+                        maxWidth: '90px'
                       }}
                     >
                       {stopwatchActive ? 'Stop' : 'Start'}
@@ -493,11 +501,13 @@ export default function DashboardApp() {
                         fontSize: '0.78rem', 
                         background: 'transparent', 
                         border: '1px solid var(--border)', 
-                        padding: '4px 10px', 
+                        padding: '5px 16px', 
                         borderRadius: 'var(--radius-sm)', 
                         cursor: 'pointer', 
                         color: 'var(--text-secondary)',
-                        transition: 'all var(--transition-normal)'
+                        transition: 'all var(--transition-normal)',
+                        flex: '1',
+                        maxWidth: '90px'
                       }}
                     >
                       Reset
