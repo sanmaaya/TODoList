@@ -1,49 +1,143 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from './theme.js';
 
 export default function DashboardApp() {
   const [theme, toggleTheme] = useTheme();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  
+  // Database States
   const [todos, setTodos] = useState([]);
+  const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // Notion Filter states
+  // Filters & Searches
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
   const [priority, setPriority] = useState('all');
-  const [category, setCategory] = useState('all');
+  const [subjectIdFilter, setSubjectIdFilter] = useState('all');
   const [sortBy, setSortBy] = useState('createdAt');
 
-  // Inline row adder states
+  // Inline row adder
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState('');
+  const [newSubjectId, setNewSubjectId] = useState('');
 
-  // Workspace metadata (mock Notion page variables)
-  const [workspaceTitle, setWorkspaceTitle] = useState('PriorityFlow Task Dashboard');
-  const [emoji, setEmoji] = useState('📝');
+  // ----------------------------------------------------
+  // Sticky Notes State (Persisted in localStorage)
+  // ----------------------------------------------------
+  const [stickyNotes, setStickyNotes] = useState(() => {
+    const saved = localStorage.getItem('study_sticky_notes');
+    return saved ? JSON.parse(saved) : "📌 Welcome to your Study Dashboard!\n- Start Pomodoro for intense revision\n- Double check exam schedules in Exam Prep\n- Track your mood and study hours daily";
+  });
 
-  // Fetch todos from Express backend API
-  const fetchTodos = async () => {
+  useEffect(() => {
+    localStorage.setItem('study_sticky_notes', JSON.stringify(stickyNotes));
+  }, [stickyNotes]);
+
+  // ----------------------------------------------------
+  // Pomodoro Timer Widget States
+  // ----------------------------------------------------
+  const [pomoMode, setPomoMode] = useState('Work'); // 'Work' (25m) or 'Break' (5m)
+  const [pomoMinutes, setPomoMinutes] = useState(25);
+  const [pomoSeconds, setPomoSeconds] = useState(0);
+  const [pomoActive, setPomoActive] = useState(false);
+  const pomoTimerRef = useRef(null);
+
+  useEffect(() => {
+    if (pomoActive) {
+      pomoTimerRef.current = setInterval(() => {
+        if (pomoSeconds > 0) {
+          setPomoSeconds(pomoSeconds - 1);
+        } else if (pomoMinutes > 0) {
+          setPomoMinutes(pomoMinutes - 1);
+          setPomoSeconds(59);
+        } else {
+          // Timer finished
+          clearInterval(pomoTimerRef.current);
+          setPomoActive(false);
+          const nextMode = pomoMode === 'Work' ? 'Break' : 'Work';
+          setPomoMode(nextMode);
+          setPomoMinutes(nextMode === 'Work' ? 25 : 5);
+          setPomoSeconds(0);
+          alert(`⏰ Pomodoro Alert: ${pomoMode} session completed!`);
+        }
+      }, 1000);
+    } else {
+      clearInterval(pomoTimerRef.current);
+    }
+    return () => clearInterval(pomoTimerRef.current);
+  }, [pomoActive, pomoMinutes, pomoSeconds, pomoMode]);
+
+  const handlePomoReset = () => {
+    setPomoActive(false);
+    setPomoMinutes(pomoMode === 'Work' ? 25 : 5);
+    setPomoSeconds(0);
+  };
+
+  const handlePomoModeChange = (mode) => {
+    setPomoActive(false);
+    setPomoMode(mode);
+    setPomoMinutes(mode === 'Work' ? 25 : 5);
+    setPomoSeconds(0);
+  };
+
+  // ----------------------------------------------------
+  // Stopwatch Widget States
+  // ----------------------------------------------------
+  const [stopwatchTime, setStopwatchTime] = useState(0); // in ms
+  const [stopwatchActive, setStopwatchActive] = useState(false);
+  const stopwatchTimerRef = useRef(null);
+
+  useEffect(() => {
+    if (stopwatchActive) {
+      const startOffset = Date.now() - stopwatchTime;
+      stopwatchTimerRef.current = setInterval(() => {
+        setStopwatchTime(Date.now() - startOffset);
+      }, 50);
+    } else {
+      clearInterval(stopwatchTimerRef.current);
+    }
+    return () => clearInterval(stopwatchTimerRef.current);
+  }, [stopwatchActive]);
+
+  const formatStopwatch = (timeMs) => {
+    const totalSecs = Math.floor(timeMs / 1000);
+    const mins = Math.floor(totalSecs / 60);
+    const secs = totalSecs % 60;
+    const ms = Math.floor((timeMs % 1000) / 10);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}:${ms.toString().padStart(2, '0')}`;
+  };
+
+  // ----------------------------------------------------
+  // Database API Requests
+  // ----------------------------------------------------
+  const fetchDashboardData = async () => {
     try {
       setLoading(true);
+      // Fetch subjects for relation mapping
+      const subjectsResponse = await fetch('/_/backend/api/subjects');
+      if (!subjectsResponse.ok) throw new Error('Failed to load subjects');
+      const subjectsData = await subjectsResponse.json();
+      setSubjects(subjectsData);
+
+      // Fetch filtered todos
       const params = new URLSearchParams();
       if (search) params.append('search', search);
       if (status !== 'all') params.append('status', status);
       if (priority !== 'all') params.append('priority', priority);
-      if (category !== 'all') params.append('category', category);
+      if (subjectIdFilter !== 'all') params.append('subjectId', subjectIdFilter);
       params.append('sortBy', sortBy);
 
-      const response = await fetch(`/api/todos?${params.toString()}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch tasks');
-      }
-      const data = await response.json();
-      setTodos(data);
+      const todosResponse = await fetch(`/_/backend/api/todos?${params.toString()}`);
+      if (!todosResponse.ok) throw new Error('Failed to load tasks database');
+      const todosData = await todosResponse.json();
+      setTodos(todosData);
+      
       setError(null);
     } catch (err) {
       console.error(err);
-      setError('Backend connection error. Make sure the API server is active.');
+      setError('Could not sync workspace. Make sure backend service is active.');
     } finally {
       setLoading(false);
     }
@@ -51,93 +145,75 @@ export default function DashboardApp() {
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      fetchTodos();
-    }, 250); // Debounce search changes
-
+      fetchDashboardData();
+    }, 250);
     return () => clearTimeout(delayDebounceFn);
-  }, [search, status, priority, category, sortBy]);
+  }, [search, status, priority, subjectIdFilter, sortBy]);
 
-  // Handle Inline Add Todo (Press Enter)
+  // Quick Todo Adder (Press Enter)
   const handleInlineSubmit = async (e) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
 
     try {
-      const response = await fetch('/api/todos', {
+      const response = await fetch('/_/backend/api/todos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: newTitle.trim(),
           priority: 'Medium',
-          category: category !== 'all' ? category : 'General',
-          tags: []
+          category: 'Study',
+          subjectId: newSubjectId || null
         })
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to insert todo');
-      }
-
+      if (!response.ok) throw new Error('Failed to write task');
+      
       setNewTitle('');
+      setNewSubjectId('');
       setIsAdding(false);
-      fetchTodos();
+      fetchDashboardData();
     } catch (err) {
-      alert('Error: ' + err.message);
+      alert('Error creating task: ' + err.message);
     }
   };
 
-  // Toggle Completed
+  // Toggle Done Checkbox
   const handleToggleComplete = async (todo) => {
     try {
-      const response = await fetch(`/api/todos/${todo.id}`, {
+      const response = await fetch(`/_/backend/api/todos/${todo.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ completed: !todo.completed })
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to toggle completion');
-      }
-
-      // Update state locally for instant feedback
+      if (!response.ok) throw new Error('Failed to update checkbox');
+      
+      // Update state locally for immediate response
       setTodos(todos.map(t => t.id === todo.id ? { ...t, completed: !t.completed } : t));
     } catch (err) {
-      alert('Error updating task: ' + err.message);
+      alert('Error toggling checkmark: ' + err.message);
     }
   };
 
-  // Delete Todo
+  // Delete task row
   const handleDeleteTodo = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this block?')) return;
+    if (!window.confirm('Are you sure you want to delete this task block?')) return;
 
     try {
-      const response = await fetch(`/api/todos/${id}`, {
+      const response = await fetch(`/_/backend/api/todos/${id}`, {
         method: 'DELETE'
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete todo');
-      }
-
+      if (!response.ok) throw new Error('Failed to delete row');
       setTodos(todos.filter(t => t.id !== id));
     } catch (err) {
-      alert('Error deleting task: ' + err.message);
+      alert('Error: ' + err.message);
     }
   };
-
-  // Helper: check priority styling class
-  const getPriorityPill = (prio) => {
-    if (prio === 'High') return 'notion-pill-red';
-    if (prio === 'Medium') return 'notion-pill-yellow';
-    return 'notion-pill-green';
-  };
-
-  // Available categories list
-  const categories = ['Personal', 'Work', 'Shopping', 'Health', 'General', 'Design'];
 
   return (
     <div className="workspace-wrapper">
-      {/* Sidebar navigation */}
+      {/* Collapsible Left Sidebar */}
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
           <div className="sidebar-brand">
@@ -151,14 +227,10 @@ export default function DashboardApp() {
               <rect x="5.5" y="5.5" width="13" height="13" rx="3" transform="rotate(45 12 12)" fill="url(#logo-grad-dash)" />
               <path d="M9.5 12l1.5 1.5 3.5-3.5" stroke="var(--bg-sidebar)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
             </svg>
-            <span>PriorityFlow</span>
+            <span>Study Planner</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <button 
-              className="sidebar-toggle-btn" 
-              onClick={toggleTheme} 
-              title="Toggle theme mode"
-            >
+            <button className="sidebar-toggle-btn" onClick={toggleTheme} title="Toggle theme mode">
               {theme === 'dark' ? '☀️' : '🌙'}
             </button>
             <button className="sidebar-toggle-btn" onClick={() => setSidebarCollapsed(true)} title="Collapse sidebar">
@@ -171,42 +243,42 @@ export default function DashboardApp() {
 
         <div className="sidebar-menu">
           <div className="menu-section-label">Workspace</div>
-          <div className={`menu-item ${status === 'all' && category === 'all' && priority === 'all' ? 'active' : ''}`} onClick={() => { setStatus('all'); setCategory('all'); setPriority('all'); }}>
+          <a href="/dashboard.html" className="menu-item active">
             <div className="menu-item-left">
               <span className="menu-item-icon">🏠</span>
-              <span>Workspace Home</span>
+              <span>Home Dashboard</span>
             </div>
-          </div>
-          <div className={`menu-item ${status === 'active' ? 'active' : ''}`} onClick={() => { setStatus('active'); }}>
+          </a>
+          <a href="/subjects.html" className="menu-item">
+            <div className="menu-item-left">
+              <span className="menu-item-icon">🎓</span>
+              <span>Subjects</span>
+            </div>
+          </a>
+          <a href="/notes.html" className="menu-item">
+            <div className="menu-item-left">
+              <span className="menu-item-icon">📝</span>
+              <span>Notes</span>
+            </div>
+          </a>
+          <a href="/exams.html" className="menu-item">
+            <div className="menu-item-left">
+              <span className="menu-item-icon">📅</span>
+              <span>Exam Preparation</span>
+            </div>
+          </a>
+          <a href="/tracker.html" className="menu-item">
+            <div className="menu-item-left">
+              <span className="menu-item-icon">📈</span>
+              <span>Progress Tracker</span>
+            </div>
+          </a>
+          <a href="/goals.html" className="menu-item">
             <div className="menu-item-left">
               <span className="menu-item-icon">🎯</span>
-              <span>Active Tasks</span>
+              <span>Goals</span>
             </div>
-            <span className="menu-item-badge">{todos.filter(t => !t.completed).length}</span>
-          </div>
-          <div className={`menu-item ${status === 'completed' ? 'active' : ''}`} onClick={() => { setStatus('completed'); }}>
-            <div className="menu-item-left">
-              <span className="menu-item-icon">🗄️</span>
-              <span>Completed Archive</span>
-            </div>
-          </div>
-
-          <div className="menu-section-label">Categories</div>
-          {categories.map((cat, idx) => {
-            const emojis = { Personal: '👤', Work: '💼', Shopping: '🛒', Health: '❤️', General: '⭐', Design: '🎨' };
-            return (
-              <div
-                key={cat}
-                className={`menu-item ${category === cat ? 'active' : ''}`}
-                onClick={() => setCategory(category === cat ? 'all' : cat)}
-              >
-                <div className="menu-item-left">
-                  <span className="menu-item-icon">{emojis[cat] || '📁'}</span>
-                  <span>{cat}</span>
-                </div>
-              </div>
-            );
-          })}
+          </a>
 
           <div className="menu-section-label">External</div>
           <a href="/" className="menu-item">
@@ -218,12 +290,12 @@ export default function DashboardApp() {
         </div>
       </aside>
 
-      {/* Main workspace section */}
+      {/* Main Panel Content */}
       <main className={`workspace-content ${sidebarCollapsed ? 'full-width' : ''}`}>
-        {/* Cover Photo */}
+        {/* Cover Photo banner */}
         <div className="workspace-cover cover-accent-1"></div>
 
-        {/* Collapsed sidebar trigger indicator */}
+        {/* Collapsed sidebar trigger */}
         {sidebarCollapsed && (
           <button className="menu-trigger-btn" onClick={() => setSidebarCollapsed(false)} title="Expand sidebar">
             <svg viewBox="0 0 24 24" style={{ width: '14px', height: '14px', fill: 'currentColor' }}>
@@ -233,51 +305,111 @@ export default function DashboardApp() {
           </button>
         )}
 
-        {/* Canvas area */}
         <div className="workspace-canvas">
-          {/* Emoji Floating wrapper */}
+          {/* Page Emoji */}
           <div className="workspace-icon-wrapper">
-            <span
-              className="workspace-emoji"
-              style={{ cursor: 'pointer' }}
-              onClick={() => {
-                const emojis = ['📝', '🎯', '💼', '🚀', '⭐', '🍀', '🍎', '🧩'];
-                const nextIdx = (emojis.indexOf(emoji) + 1) % emojis.length;
-                setEmoji(emojis[nextIdx]);
-              }}
-              title="Click to switch Emoji"
-            >
-              {emoji}
-            </span>
+            <span className="workspace-emoji">🎓</span>
           </div>
 
-          {/* Editable Document title */}
-          <input
-            className="workspace-title-input"
-            value={workspaceTitle}
-            onChange={(e) => setWorkspaceTitle(e.target.value)}
-            placeholder="Untitled Workspace"
-          />
+          {/* Title Header */}
+          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.2rem', fontWeight: 800, marginBottom: '15px', color: 'var(--text-main)' }}>STUDY PLANNER</h1>
 
-          {/* Connection error */}
+          {/* Welcome Message */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid var(--border)', paddingBottom: '10px' }}>
+            <span style={{ fontSize: '1.05rem', color: 'var(--text-secondary)' }}>Welcome back, John 👋</span>
+            <span style={{ fontStyle: 'italic', color: 'var(--text-muted)', fontSize: '0.85rem' }}>"Go the extra mile. It's never crowded."</span>
+          </div>
+
           {error && (
-            <div style={{ color: '#ff7369', padding: '10px 15px', border: '1px solid #ff7369', borderRadius: '4px', background: 'rgba(255, 115, 105, 0.1)', marginBottom: '20px' }}>
+            <div style={{ color: 'var(--danger-text)', padding: '10px 15px', border: '1px solid var(--danger)', borderRadius: '4px', background: 'var(--danger)', marginBottom: '20px' }}>
               {error}
             </div>
           )}
 
-          {/* Database layout views */}
+          {/* 3-Column Widgets Panel */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '35px' }}>
+            
+            {/* Widget 1: Quick Links Navigation */}
+            <div style={{ border: '1px solid var(--border)', padding: '16px', borderRadius: 'var(--radius-lg)', background: 'var(--bg-sidebar)' }}>
+              <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px' }}>📖 Quick Access</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <a href="/subjects.html" style={{ display: 'block', fontSize: '0.9rem', color: 'var(--primary)' }}>📁 Open Subjects Dashboard</a>
+                <a href="/notes.html" style={{ display: 'block', fontSize: '0.9rem', color: 'var(--primary)' }}>📝 Open Lecture Notes Gallery</a>
+                <a href="/exams.html" style={{ display: 'block', fontSize: '0.9rem', color: 'var(--primary)' }}>📅 Open Exam Schedule Tracker</a>
+                <a href="/tracker.html" style={{ display: 'block', fontSize: '0.9rem', color: 'var(--primary)' }}>📈 Open Progress Hour Logger</a>
+                <a href="/goals.html" style={{ display: 'block', fontSize: '0.9rem', color: 'var(--primary)' }}>🎯 Open Short & Long-term Goals</a>
+              </div>
+            </div>
+
+            {/* Widget 2: Sticky Notes Notepad */}
+            <div style={{ border: '1px solid var(--border)', padding: '16px', borderRadius: 'var(--radius-lg)', background: 'var(--bg-sidebar)', display: 'flex', flexDirection: 'column' }}>
+              <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>📌 Sticky Board</h3>
+              <textarea
+                style={{ flex: 1, width: '100%', fontSize: '0.85rem', color: 'var(--text-main)', lineHeight: 1.5, resize: 'none', minHeight: '100px' }}
+                value={stickyNotes}
+                onChange={(e) => setStickyNotes(e.target.value)}
+                placeholder="Write quick draft ideas or reminders..."
+              />
+            </div>
+
+            {/* Widget 3: Pomodoro & Stopwatch Toggles */}
+            <div style={{ border: '1px solid var(--border)', padding: '16px', borderRadius: 'var(--radius-lg)', background: 'var(--bg-sidebar)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '15px' }}>
+              
+              {/* Pomodoro Timer */}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>⏰ Pomodoro ({pomoMode})</h3>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <button onClick={() => handlePomoModeChange('Work')} style={{ fontSize: '0.7rem', padding: '2px 5px', borderRadius: '2px', background: pomoMode === 'Work' ? 'var(--bg-active)' : 'transparent', color: pomoMode === 'Work' ? 'var(--text-main)' : 'var(--text-secondary)', cursor: 'pointer' }}>Work</button>
+                    <button onClick={() => handlePomoModeChange('Break')} style={{ fontSize: '0.7rem', padding: '2px 5px', borderRadius: '2px', background: pomoMode === 'Break' ? 'var(--bg-active)' : 'transparent', color: pomoMode === 'Break' ? 'var(--text-main)' : 'var(--text-secondary)', cursor: 'pointer' }}>Break</button>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '1.4rem', fontFamily: 'monospace', fontWeight: 'bold', color: 'var(--text-main)' }}>
+                    {pomoMinutes.toString().padStart(2, '0')}:{pomoSeconds.toString().padStart(2, '0')}
+                  </span>
+                  
+                  <button onClick={() => setPomoActive(!pomoActive)} style={{ fontSize: '0.78rem', background: 'var(--bg-active)', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer', color: 'var(--text-main)' }}>
+                    {pomoActive ? 'Pause' : 'Start'}
+                  </button>
+                  <button onClick={handlePomoReset} style={{ fontSize: '0.78rem', background: 'transparent', border: '1px solid var(--border)', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                    Reset
+                  </button>
+                </div>
+              </div>
+
+              {/* Stopwatch Timer */}
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '10px' }}>
+                <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>⏱️ Lap Stopwatch</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '1.3rem', fontFamily: 'monospace', fontWeight: 'bold', color: 'var(--text-main)' }}>
+                    {formatStopwatch(stopwatchTime)}
+                  </span>
+                  
+                  <button onClick={() => setStopwatchActive(!stopwatchActive)} style={{ fontSize: '0.78rem', background: 'var(--bg-active)', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer', color: 'var(--text-main)' }}>
+                    {stopwatchActive ? 'Stop' : 'Start'}
+                  </button>
+                  <button onClick={() => { setStopwatchActive(false); setStopwatchTime(0); }} style={{ fontSize: '0.78rem', background: 'transparent', border: '1px solid var(--border)', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Database controls */}
           <div className="db-controls">
             <div className="db-views-tabs">
               <span className="db-view-tab active">
-                <span>📋</span> Table List View
+                <span>📋</span> To-Do List Table
               </span>
             </div>
 
             <div className="db-filters-wrapper">
               <input
                 type="text"
-                placeholder="Search database..."
+                placeholder="Search tasks..."
                 className="notion-search-input"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -298,6 +430,18 @@ export default function DashboardApp() {
               <select
                 className="property-select-input"
                 style={{ fontSize: '0.85rem' }}
+                value={subjectIdFilter}
+                onChange={(e) => setSubjectIdFilter(e.target.value)}
+              >
+                <option value="all">All Subjects</option>
+                {subjects.map(sub => (
+                  <option key={sub.id} value={sub.id}>{sub.name}</option>
+                ))}
+              </select>
+
+              <select
+                className="property-select-input"
+                style={{ fontSize: '0.85rem' }}
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
               >
@@ -308,26 +452,26 @@ export default function DashboardApp() {
             </div>
           </div>
 
-          {/* Todo List Area */}
+          {/* Tasks table listing */}
           {loading && todos.length === 0 ? (
-            <div style={{ color: 'var(--text-secondary)', padding: '20px 0' }}>Loading database contents...</div>
+            <div style={{ color: 'var(--text-secondary)', padding: '25px 0' }}>Syncing planner database...</div>
           ) : (
             <div className="notion-db-list">
               {todos.map((todo) => {
                 const isOverdue = todo.dueDate && new Date(todo.dueDate) < new Date(new Date().setHours(0,0,0,0)) && !todo.completed;
+                const relatedSubject = subjects.find(s => s.id === todo.subjectId);
                 return (
                   <div
                     key={todo.id}
                     className={`notion-row ${todo.completed ? 'completed' : ''}`}
                   >
-                    {/* Drag Mock */}
                     <div className="drag-handle-mock">
                       <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px', fill: 'currentColor' }}>
                         <path d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
                       </svg>
                     </div>
 
-                    {/* Square Checkbox */}
+                    {/* Checkbox */}
                     <div
                       className={`notion-check-box ${todo.completed ? 'checked' : ''}`}
                       onClick={() => handleToggleComplete(todo)}
@@ -337,21 +481,23 @@ export default function DashboardApp() {
                       </svg>
                     </div>
 
-                    {/* Title */}
+                    {/* Title Name */}
                     <div className="notion-row-title-container">
                       <a href={`/todo.html?id=${todo.id}`} className="notion-row-title-link">
                         {todo.title || 'Untitled page'}
                       </a>
                     </div>
 
-                    {/* Metadata property tags */}
+                    {/* Properties */}
                     <div className="notion-row-properties">
-                      <span className={`notion-pill ${getPriorityPill(todo.priority)}`}>
+                      {relatedSubject && (
+                        <span className="notion-pill notion-pill-blue">
+                          🎓 {relatedSubject.name}
+                        </span>
+                      )}
+
+                      <span className={`notion-pill ${todo.priority === 'High' ? 'notion-pill-red' : todo.priority === 'Medium' ? 'notion-pill-yellow' : 'notion-pill-green'}`}>
                         {todo.priority}
-                      </span>
-                      
-                      <span className="notion-pill notion-pill-grey">
-                        {todo.category}
                       </span>
 
                       {todo.dueDate && (
@@ -361,12 +507,12 @@ export default function DashboardApp() {
                       )}
                     </div>
 
-                    {/* Quick Row Deletion */}
+                    {/* Row delete action */}
                     <div className="notion-row-actions">
                       <button
                         className="notion-row-btn"
                         onClick={() => handleDeleteTodo(todo.id)}
-                        title="Delete block row"
+                        title="Delete task block"
                       >
                         <svg viewBox="0 0 24 24" style={{ width: '14px', height: '14px', fill: 'currentColor' }}>
                           <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
@@ -377,7 +523,7 @@ export default function DashboardApp() {
                 );
               })}
 
-              {/* Inline task adder row */}
+              {/* Inline database rows creator */}
               <div className="notion-row-adder">
                 {!isAdding ? (
                   <button className="notion-row-adder-btn" onClick={() => setIsAdding(true)}>
@@ -387,17 +533,25 @@ export default function DashboardApp() {
                   <form className="notion-adder-form" onSubmit={handleInlineSubmit}>
                     <input
                       className="notion-adder-input"
-                      placeholder="Title of the task... (Press Enter to save)"
+                      placeholder="Name of task... (Press Enter to save)"
                       value={newTitle}
                       onChange={(e) => setNewTitle(e.target.value)}
                       autoFocus
-                      onBlur={() => {
-                        // Delay collapsing form slightly to allow submit click triggers
-                        setTimeout(() => {
-                          if (newTitle.trim() === '') setIsAdding(false);
-                        }, 200);
-                      }}
                     />
+                    
+                    <select
+                      className="property-select-input"
+                      style={{ fontSize: '0.85rem', padding: '2px 8px' }}
+                      value={newSubjectId}
+                      onChange={(e) => setNewSubjectId(e.target.value)}
+                    >
+                      <option value="">No Subject</option>
+                      {subjects.map(sub => (
+                        <option key={sub.id} value={sub.id}>{sub.name}</option>
+                      ))}
+                    </select>
+
+                    <button type="submit" style={{ display: 'none' }}></button>
                   </form>
                 )}
               </div>

@@ -16,6 +16,10 @@ export default function TodoDetailApp() {
   const [completed, setCompleted] = useState(false);
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
+  
+  // Relation database state
+  const [subjects, setSubjects] = useState([]);
+  const [subjectId, setSubjectId] = useState('');
 
   // Status message for auto-saving
   const [saveStatus, setSaveStatus] = useState('Saved'); // 'Saved', 'Saving...', 'Error'
@@ -38,7 +42,15 @@ export default function TodoDetailApp() {
 
     try {
       setLoading(true);
-      const response = await fetch(`/api/todos/${todoId}`);
+      
+      // Fetch subjects for relation dropdown
+      const subjectsResponse = await fetch('/_/backend/api/subjects');
+      if (!subjectsResponse.ok) throw new Error('Failed to load subjects database');
+      const subjectsData = await subjectsResponse.json();
+      setSubjects(subjectsData);
+
+      // Fetch todo details
+      const response = await fetch(`/_/backend/api/todos/${todoId}`);
       if (response.status === 404) {
         throw new Error('This page does not exist in the database.');
       } else if (!response.ok) {
@@ -56,6 +68,7 @@ export default function TodoDetailApp() {
       setDueDate(data.dueDate || '');
       setCompleted(data.completed);
       setTags(data.tags || []);
+      setSubjectId(data.subjectId || '');
       setError(null);
     } catch (err) {
       console.error(err);
@@ -82,7 +95,8 @@ export default function TodoDetailApp() {
       category: updatedFields.category !== undefined ? updatedFields.category : category,
       dueDate: (updatedFields.dueDate !== undefined ? updatedFields.dueDate : dueDate) || null,
       completed: updatedFields.completed !== undefined ? updatedFields.completed : completed,
-      tags: updatedFields.tags !== undefined ? updatedFields.tags : tags
+      tags: updatedFields.tags !== undefined ? updatedFields.tags : tags,
+      subjectId: (updatedFields.subjectId !== undefined ? updatedFields.subjectId : subjectId) || null
     };
 
     if (requestBody.title.trim() === '') {
@@ -91,7 +105,7 @@ export default function TodoDetailApp() {
     }
 
     try {
-      const response = await fetch(`/api/todos/${todoId}`, {
+      const response = await fetch(`/_/backend/api/todos/${todoId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
@@ -142,6 +156,9 @@ export default function TodoDetailApp() {
     } else if (fieldName === 'completed') {
       setCompleted(value);
       saveUpdates({ completed: value });
+    } else if (fieldName === 'subjectId') {
+      setSubjectId(value);
+      saveUpdates({ subjectId: value });
     }
   };
 
@@ -170,7 +187,7 @@ export default function TodoDetailApp() {
     if (!window.confirm('Delete this database page permanently?')) return;
 
     try {
-      const response = await fetch(`/api/todos/${todo.id}`, {
+      const response = await fetch(`/_/backend/api/todos/${todo.id}`, {
         method: 'DELETE'
       });
 
@@ -187,7 +204,7 @@ export default function TodoDetailApp() {
   return (
     <div className="workspace-wrapper" style={{ minHeight: '100vh', flexDirection: 'column' }}>
       {/* Cover Image banner */}
-      <div className="workspace-cover cover-accent-1">
+      <div className="workspace-cover">
         {/* Save indicator float */}
         <div style={{ position: 'absolute', top: '15px', right: '20px', background: 'rgba(0,0,0,0.4)', padding: '4px 10px', borderRadius: '4px', fontSize: '0.8rem', color: '#ccc', border: '1px solid rgba(255,255,255,0.08)' }}>
           {saveStatus === 'Saving...' && '🌀 Saving changes...'}
@@ -200,7 +217,7 @@ export default function TodoDetailApp() {
         
         {/* Top bar header navigation */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
-          <a href="/dashboard.html" className="back-link" style={{ margin: 0 }}>
+          <a href="/dashboard.html" className="back-link" style={{ margin: 0, textDecoration: 'none', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem' }}>
             <svg viewBox="0 0 24 24" style={{ width: '16px', height: '16px', fill: 'currentColor' }}>
               <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
             </svg>
@@ -220,12 +237,12 @@ export default function TodoDetailApp() {
           <div style={{ color: 'var(--text-secondary)', padding: '40px 0' }}>Loading page block...</div>
         ) : error ? (
           <div className="glass-card error-card animate-fade-in" style={{ marginTop: '30px', background: 'transparent', borderColor: 'var(--border)' }}>
-            <svg viewBox="0 0 24 24" style={{ fill: '#ff7369' }}>
+            <svg viewBox="0 0 24 24" style={{ fill: '#ff7369', width: '48px', height: '48px' }}>
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
             </svg>
-            <h2>Page Block Missing</h2>
-            <p>{error}</p>
-            <a href="/dashboard.html" className="btn btn-secondary">Return to Workspace</a>
+            <h2 style={{ margin: '15px 0 10px 0' }}>Page Block Missing</h2>
+            <p style={{ color: 'var(--text-secondary)' }}>{error}</p>
+            <a href="/dashboard.html" className="btn btn-secondary" style={{ marginTop: '20px', display: 'inline-block' }}>Return to Workspace</a>
           </div>
         ) : (
           <div>
@@ -240,6 +257,7 @@ export default function TodoDetailApp() {
               value={title}
               onChange={(e) => handlePropertyChange('title', e.target.value)}
               placeholder="Untitled Document"
+              style={{ border: 'none', background: 'transparent', outline: 'none' }}
             />
 
             {/* Notion Database Properties Table */}
@@ -263,6 +281,25 @@ export default function TodoDetailApp() {
                       {completed ? 'Archived / Done' : 'Active / Pending'}
                     </span>
                   </div>
+                </div>
+              </div>
+
+              {/* Subject Relation Link */}
+              <div className="properties-table-row">
+                <div className="property-label-cell">
+                  <span>🎓</span> Subject Link
+                </div>
+                <div className="property-value-cell">
+                  <select
+                    className="property-select-input"
+                    value={subjectId}
+                    onChange={(e) => handlePropertyChange('subjectId', e.target.value)}
+                  >
+                    <option value="">No Subject Relation</option>
+                    {subjects.map(s => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -293,7 +330,7 @@ export default function TodoDetailApp() {
                   <input
                     type="text"
                     className="property-text-input"
-                    placeholder="e.g. Work, Personal"
+                    placeholder="e.g. Study, Revision, Personal"
                     value={category}
                     onChange={(e) => handlePropertyChange('category', e.target.value)}
                   />
@@ -323,15 +360,15 @@ export default function TodoDetailApp() {
                 <div className="property-value-cell">
                   <div className="tags-input-container" style={{ background: 'transparent', padding: '2px', border: 'none' }}>
                     {tags.map((tag, idx) => (
-                      <span key={idx} className="tag-pill" style={{ background: 'rgba(82,156,202,0.15)', color: 'var(--primary)', borderColor: 'rgba(82,156,202,0.3)' }}>
+                      <span key={idx} className="tag-pill" style={{ background: 'rgba(82,156,202,0.15)', color: 'var(--primary)', borderColor: 'rgba(82,156,202,0.3)', display: 'inline-flex', alignItems: 'center', gap: '4px', marginRight: '6px', marginBottom: '4px', padding: '2px 8px', borderRadius: '3px', fontSize: '0.8rem' }}>
                         #{tag}
-                        <button type="button" onClick={() => handleRemoveTag(idx)} style={{ color: 'var(--primary)' }}>&times;</button>
+                        <button type="button" onClick={() => handleRemoveTag(idx)} style={{ color: 'var(--primary)', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '0.85rem' }}>&times;</button>
                       </span>
                     ))}
                     <input
                       type="text"
                       placeholder={tags.length === 0 ? "＋ Add tag..." : ""}
-                      style={{ fontSize: '0.9rem', width: '120px', padding: '4px' }}
+                      style={{ fontSize: '0.9rem', width: '120px', padding: '4px', border: 'none', background: 'transparent', outline: 'none' }}
                       value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
                       onKeyDown={handleAddTag}
@@ -350,19 +387,20 @@ export default function TodoDetailApp() {
               placeholder="Press enter to start typing page details / notes block..."
               value={description}
               onChange={(e) => handlePropertyChange('description', e.target.value)}
+              style={{ width: '100%', minHeight: '300px', border: 'none', background: 'transparent', resize: 'none', color: 'var(--text-main)', fontSize: '1rem', lineHeight: 1.6, outline: 'none' }}
             />
 
             {/* Page Delete actions */}
             <div style={{ marginTop: '40px', display: 'flex', justifyContent: 'flex-end' }}>
               <button
-                className="btn btn-danger"
-                style={{ padding: '8px 16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                className="notion-filter-pill"
+                style={{ padding: '8px 16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--danger-text)', border: '1px solid var(--border)', background: 'transparent', cursor: 'pointer' }}
                 onClick={handleDelete}
               >
                 <svg viewBox="0 0 24 24" style={{ width: '14px', height: '14px', fill: 'currentColor' }}>
                   <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
                 </svg>
-                Delete Page
+                Delete Page Block
               </button>
             </div>
           </div>

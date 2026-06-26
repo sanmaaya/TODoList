@@ -1,0 +1,12 @@
+[
+  { "id": "goal-1", "title": "Score 80%+ in All Assignments", "type": "Short Term", "priority": "High", "dueDate": "2027-04-10", "completed": false },
+  { "id": "goal-2", "title": "Create a Daily Study Routine", "type": "Short Term", "priority": "High", "dueDate": "2027-06-05", "completed": false },
+  { "id": "goal-3", "title": "Complete Semester Exams with Distinction", "type": "Short Term", "priority": "High", "dueDate": "", "completed": false },
+  { "id": "goal-4", "title": "Finish Python Programming Course", "type": "Short Term", "priority": "High", "dueDate": "", "completed": true },
+  { "id": "goal-5", "title": "Read 5 Non-fiction Books", "type": "Short Term", "priority": "Medium", "dueDate": "2027-07-24", "completed": false },
+  { "id": "goal-6", "title": "Submit All Projects Before Deadline", "type": "Short Term", "priority": "Medium", "dueDate": "", "completed": false },
+  { "id": "goal-7", "title": "Join a College Club or Society", "type": "Short Term", "priority": "Medium", "dueDate": "", "completed": true },
+  { "id": "goal-8", "title": "Organize Study Materials and Notes", "type": "Short Term", "priority": "Low", "dueDate": "2027-08-06", "completed": true },
+  { "id": "goal-9", "title": "Develop and Launch a Personal Project", "type": "Long Term", "priority": "High", "dueDate": "2028-09-18", "completed": false },
+  { "id": "goal-10", "title": "Build a Personal Brand (Portfolio/LinkedIn)", "type": "Long Term", "priority": "High", "dueDate": "2028-11-13", "completed": false }
+]

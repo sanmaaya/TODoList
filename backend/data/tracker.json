@@ -1,0 +1,6 @@
+[
+  { "id": "log-1", "date": "2027-06-09", "summary": "Finished revision for Chemistry, feeling good", "mood": "Happy", "focusLevel": 5, "hoursStudied": 6.5 },
+  { "id": "log-2", "date": "2027-06-07", "summary": "Couldn't focus today, felt distracted", "mood": "Calm", "focusLevel": 2, "hoursStudied": 3 },
+  { "id": "log-3", "date": "2027-06-06", "summary": "Struggled with Math logic, need help", "mood": "Sad", "focusLevel": 3, "hoursStudied": 4 },
+  { "id": "log-4", "date": "2027-06-05", "summary": "Extremely focused, completed 3 topics", "mood": "Confident", "focusLevel": 5, "hoursStudied": 7 }
+]

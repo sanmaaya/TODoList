@@ -1,0 +1,5 @@
+[
+  { "id": "exam-1", "name": "Web Development Final 💻", "subjectId": "sub-1", "examDate": "2027-06-12", "status": "Reviewing", "grade": "" },
+  { "id": "exam-2", "name": "Chemistry Mid-term 🔬", "subjectId": "sub-3", "examDate": "2027-06-15", "status": "Not Started", "grade": "" },
+  { "id": "exam-3", "name": "UI/UX Design Showcase 🎨", "subjectId": "sub-2", "examDate": "2027-06-20", "status": "Ready", "grade": "A+" }
+]

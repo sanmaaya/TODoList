@@ -1,0 +1,5 @@
+[
+  { "id": "note-1", "title": "Maslow's Hierarchy of Needs 🧠", "content": "1. Physiological Needs (food, water, warmth, rest)\n2. Safety Needs (security, safety)\n3. Belongingness and Love Needs (intimate relationships, friends)\n4. Esteem Needs (prestige and feeling of accomplishment)\n5. Self-Actualization (achieving one's full potential, including creative activities)\n\nNotes: Focus on applying this to consumer market segmentation.", "subjectId": "sub-4", "createdAt": "2027-06-25T12:00:00.000Z" },
+  { "id": "note-2", "title": "Chemistry Common Compounds 🧪", "content": "- Water: H2O\n- Carbon Dioxide: CO2\n- Methane: CH4\n- Sodium Chloride (Salt): NaCl\n- Glucose (Sugar): C6H12O6\n- Hydrochloric Acid: HCl\n\nNotes: Memorize valence shells configurations for exam prep.", "subjectId": "sub-3", "createdAt": "2027-06-25T12:00:00.000Z" },
+  { "id": "note-3", "title": "Exam Revision Checklist 📂", "content": "- Setup testing folders structures\n- Write server endpoints validations\n- Test cors and headers parameters\n- Document models and relations maps", "subjectId": "sub-1", "createdAt": "2027-06-25T12:00:00.000Z" }
+]
