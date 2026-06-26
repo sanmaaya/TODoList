@@ -14,14 +14,14 @@ It features an integrated marketing **Landing Page** and persistent **Light & Da
 - **Typography Stack**:
   - UI Sans-serif: **Outfit** (a clean, modern geometric sans-serif) for buttons, sidebars, search inputs, tags, and properties.
   - Editor Serif: **Lora** (a gorgeous bookish serif) for document titles and rich notes.
-- **Banner Artwork**: Featuring a custom illustration of **cute dogs playing and organizing checklists** served as the top cover banner.
+- **Banner Artwork**: Featuring a sleek, theme-aware abstract gradient that shifts colors based on light and dark mode choices.
 
 ---
 
 ## ⚡ Main Features
 
 ### 1. SaaS Landing Page (`index.html`)
-- Interactive, detailed CSS-rendered Notion workspace preview mockup displaying active checklists, tags, and the cute dogs cover.
+- Interactive, detailed CSS-rendered Notion workspace preview mockup displaying active checklists, tags, and the gradient cover banner.
 - Smooth entry animations and a clear CTA button pointing to the dashboard workspace.
 - Global light/dark theme toggle.
 
