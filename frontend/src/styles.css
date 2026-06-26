@@ -4,28 +4,28 @@
 */
 
 :root {
-  /* Obsidian/Midnight Palette (Dark Mode) */
-  --bg-main: #0c0d10; /* Deep obsidian black */
-  --bg-sidebar: #13151b; /* Sleek charcoal midnight */
-  --bg-hover: rgba(255, 255, 255, 0.045);
-  --bg-active: rgba(255, 255, 255, 0.075);
+  /* Obsidian Luxury Dark Mode */
+  --bg-main: #050507; /* Pure obsidian pitch black */
+  --bg-sidebar: #0c0c0e; /* Luxurious deep velvet charcoal */
+  --bg-hover: rgba(223, 177, 91, 0.05); /* Soft champagne gold tint hover */
+  --bg-active: rgba(223, 177, 91, 0.09); /* Active gold accent background */
   
-  --border: rgba(255, 255, 255, 0.06);
-  --border-focus: rgba(129, 140, 248, 0.45); /* Glowing indigo-blue */
+  --border: rgba(223, 177, 91, 0.07); /* Thin gold border lining */
+  --border-focus: rgba(223, 177, 91, 0.45); /* Glowing champagne gold focus */
   
-  --text-main: #e2e8f0; /* slate-200 */
-  --text-secondary: #94a3b8; /* slate-400 */
-  --text-muted: #475569; /* slate-600 */
+  --text-main: #fafafa; /* Pure alabaster white */
+  --text-secondary: #a1a1aa; /* Satin silver-gray */
+  --text-muted: #52525b; /* Slate-zinc secondary text */
   
   /* Brand/Highlight Accents */
-  --primary: #818cf8; /* Pastel Indigo */
-  --primary-hover: #6366f1;
-  --success: #064e3b; /* Deep green */
-  --success-text: #34d399; /* Emerald */
-  --warning: #78350f; /* Deep amber */
-  --warning-text: #fbbf24; /* Amber */
-  --danger: #7f1d1d; /* Deep red */
-  --danger-text: #f87171; /* Coral */
+  --primary: #dfb15b; /* Luxurious Champagne Gold */
+  --primary-hover: #f3ce70; /* Brighter satin gold */
+  --success: rgba(16, 185, 129, 0.1);
+  --success-text: #10b981; /* Emerald Green */
+  --warning: rgba(245, 158, 11, 0.1);
+  --warning-text: #f59e0b; /* Golden Amber */
+  --danger: rgba(239, 68, 68, 0.1);
+  --danger-text: #ef4444; /* Ruby Red */
   
   /* Font Stacks */
   --font-serif: 'Lora', Georgia, serif;
@@ -42,28 +42,28 @@
 }
 
 html[data-theme='light'] {
-  /* Alabaster/Warm-Sand Palette (Light Mode) */
-  --bg-main: #fafaf9; /* Warm stone sand */
-  --bg-sidebar: #f4f4f3; /* Darker warm sidebar */
-  --bg-hover: rgba(68, 64, 60, 0.045);
-  --bg-active: rgba(68, 64, 60, 0.075);
+  /* Ivory/Cashmere Luxury Light Mode */
+  --bg-main: #fcfcfc; /* Pure alabaster ivory white */
+  --bg-sidebar: #f4f4f6; /* Delicate cashmere gray-white */
+  --bg-hover: rgba(184, 151, 48, 0.05); /* Ivory gold tint hover */
+  --bg-active: rgba(184, 151, 48, 0.09);
   
-  --border: rgba(68, 64, 60, 0.08);
-  --border-focus: rgba(99, 102, 241, 0.4);
+  --border: rgba(184, 151, 48, 0.12); /* Delicate warm gold lines */
+  --border-focus: rgba(184, 151, 48, 0.45);
   
-  --text-main: #292524; /* stone-800 */
-  --text-secondary: #57534e; /* stone-600 */
-  --text-muted: #a8a29e; /* stone-400 */
+  --text-main: #18181b; /* Ink black */
+  --text-secondary: #52525b; /* Slate charcoal */
+  --text-muted: #a1a1aa; /* Silver gray */
 
-  /* Accent overrides for soft Notion light mode tag styles */
-  --primary: #4f46e5;
-  --primary-hover: #3730a3;
-  --success: rgba(52, 211, 153, 0.15);
-  --success-text: #065f46;
-  --warning: rgba(251, 191, 36, 0.18);
-  --warning-text: #92400e;
-  --danger: rgba(248, 113, 113, 0.15);
-  --danger-text: #991b1b;
+  /* Soft luxury tag indicators */
+  --primary: #b89730; /* Satin Champagne Gold */
+  --primary-hover: #987a22;
+  --success: rgba(16, 185, 129, 0.15);
+  --success-text: #047857;
+  --warning: rgba(245, 158, 11, 0.15);
+  --warning-text: #b45309;
+  --danger: rgba(239, 68, 68, 0.15);
+  --danger-text: #b91c1c;
 }
 
 /* Global resets & typography */
@@ -247,13 +247,13 @@ input:focus, textarea:focus, select:focus {
 .workspace-cover {
   height: 140px;
   width: 100%;
-  background: linear-gradient(135deg, #1e1b4b 0%, #1e1b4b 30%, #311042 70%, #0f172a 100%);
+  background: linear-gradient(135deg, #09090b 0%, #1c1917 30%, #451a03 70%, #dfb15b 100%);
   position: relative;
   border-bottom: 1px solid var(--border);
 }
 
 html[data-theme='light'] .workspace-cover {
-  background: linear-gradient(135deg, #e0e7ff 0%, #e0e7ff 30%, #f3e8ff 70%, #fafaf9 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f5f5f4 30%, #fef3c7 70%, #b89730 100%);
 }
 
 .cover-accent-1 {

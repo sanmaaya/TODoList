@@ -100,8 +100,8 @@ export default function App() {
               height: '90px', 
               width: '100%', 
               background: theme === 'dark' 
-                ? 'linear-gradient(135deg, #1e1b4b 0%, #311042 50%, #0f172a 100%)' 
-                : 'linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 50%, #fafaf9 100%)',
+                ? 'linear-gradient(135deg, #09090b 0%, #1c1917 30%, #451a03 70%, #dfb15b 100%)' 
+                : 'linear-gradient(135deg, #ffffff 0%, #f5f5f4 30%, #fef3c7 70%, #b89730 100%)',
               borderBottom: '1px solid var(--border)' 
             }}></div>
             
