@@ -96,7 +96,7 @@ export default function App() {
 
           {/* Mockup Main Panel */}
           <div className="mockup-main" style={{ padding: '0 0 20px 0' }}>
-            <div style={{ height: '90px', width: '100%', background: 'linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #06b6d4 100%)', borderBottom: '1px solid var(--border)' }}></div>
+            <div style={{ height: '90px', width: '100%', backgroundImage: "url('/cute_dogs_banner.png')", backgroundSize: 'cover', backgroundPosition: 'center', borderBottom: '1px solid var(--border)' }}></div>
             
             <div style={{ padding: '0 24px' }}>
               {/* Emoji header float */}

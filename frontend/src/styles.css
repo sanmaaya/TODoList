@@ -247,13 +247,15 @@ input:focus, textarea:focus, select:focus {
 .workspace-cover {
   height: 140px;
   width: 100%;
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  background-image: url('/cute_dogs_banner.png');
+  background-size: cover;
+  background-position: center;
   position: relative;
   border-bottom: 1px solid var(--border);
 }
 
 .cover-accent-1 {
-  background: linear-gradient(to right, #4338ca, #6d28d9, #be185d);
+  /* Cute dogs cover banner default */
 }
 
 /* Toggle Menu float trigger for collapsed sidebar */
